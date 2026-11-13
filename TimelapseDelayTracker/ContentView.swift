@@ -29,8 +29,7 @@ struct ContentView: View {
     }
 
     private var preMoveShots: Double? {
-        guard interval > 0, secondsUntilStart > 0 else { return nil }
-        return secondsUntilStart / interval
+        ShotCalculator.preMoveShots(interval: interval, secondsUntilStart: secondsUntilStart)
     }
 
     var body: some View {
@@ -147,7 +146,7 @@ struct ContentView: View {
                             Text("Pre-Move Shots Needed")
                                 .font(.subheadline)
                                 .foregroundColor(.secondary)
-                            Text("Enter \(Int(shots.rounded(.up))) into rig")
+                            Text("Enter \(ShotCalculator.rigShotCount(shots)) into rig")
                                 .font(.caption)
                                 .foregroundColor(.secondary.opacity(0.8))
                         }

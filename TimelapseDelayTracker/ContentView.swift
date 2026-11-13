@@ -2,6 +2,8 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var startTime: Date = {
+        let stored = UserDefaults.standard.object(forKey: "startTime") as? Date
+        if let stored { return stored }
         let cal = Calendar.current
         var comps = cal.dateComponents([.year, .month, .day], from: Date())
         comps.hour = 21
@@ -79,6 +81,9 @@ struct ContentView: View {
                     Spacer()
                     DatePicker("", selection: $startTime, displayedComponents: [.date, .hourAndMinute])
                         .labelsHidden()
+                        .onChange(of: startTime) { _, newVal in
+                            UserDefaults.standard.set(newVal, forKey: "startTime")
+                        }
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)

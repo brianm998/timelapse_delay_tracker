@@ -1,0 +1,18 @@
+Timelapse Delay Tracker works out the pre-move delay for motion-control timelapse rigs.
+
+Many motion-control rigs (sliders, dollies, pan/tilt heads) let you set a number of shots to take before the move begins. Get that number right and the move starts at the time you planned, for example when the light changes at sunset. This app does the arithmetic for you.
+
+HOW TO USE IT
+1. Move Start Time: pick the date and time (hour and minute) at which you want the move to begin.
+2. Shooting Interval: type the time between shots, in seconds. Decimals are fine.
+
+The Live Results card updates every second. It shows the Pre-Move Shots Needed (the time remaining until the move start divided by your interval, to one decimal place) and an "Enter N into rig" line, where N is that number rounded up to a whole shot. Type N into your rig and you are done.
+
+If the start time has already passed, or the interval is not a valid number above zero, the app tells you instead of showing a result.
+
+Your start time and interval are remembered between launches, so you only change what has changed.
+
+WORKS OFFLINE, COLLECTS NOTHING
+The app needs no internet connection, no account and no special hardware. It does not collect, transmit or share any data. Your settings are stored only on your device.
+
+The app is a calculator. It does not connect to or control your camera or rig.

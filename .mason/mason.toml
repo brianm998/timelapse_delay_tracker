@@ -32,17 +32,13 @@ max_rounds = 3
 on_red = "develop"
 
 # Unit tests plus the offscreen UI smoke test (ContentViewSmokeTests), in the app-hosted
-# TimelapseDelayTrackerTests bundle. MASON leases one simulator per run, boots it headless
-# (`simctl boot`, no Simulator window) and sets MASON_DEVICE to its id. Never add an XCUITest
-# bundle: nothing automated may appear on this Mac's screen, and the xcodebuild shim refuses
-# UI test runs under MASON. Render screens offscreen instead.
+# TimelapseDelayTrackerTests bundle. scripts/test.sh creates a throwaway simulator per run and
+# deletes it afterwards (booted headless, no Simulator window). It does not use a MASON
+# `ios-simulator` environment because that pool includes every simulator on this Mac, among them
+# ones another pipeline uses. Never add an XCUITest bundle: nothing automated may appear on this
+# Mac's screen, and the xcodebuild shim refuses UI test runs under MASON.
 [suite.ios]
-command = "rm -rf build/test.xcresult && xcodebuild test -project TimelapseDelayTracker.xcodeproj -scheme TimelapseDelayTracker -destination \"id=$MASON_DEVICE\" -derivedDataPath build/DerivedData -resultBundlePath build/test.xcresult 2>&1"
+command = "scripts/test.sh"
 parser = "xctest"
 min_tests = 5
 level = "unit"
-env = "simulator"
-
-[environment.simulator]
-type = "ios-simulator"
-os = "26"

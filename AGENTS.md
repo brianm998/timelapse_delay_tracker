@@ -8,7 +8,7 @@ this when the task body really is the plan. Run `mason help filing` for details.
 
 ## Building and testing
 
-- Tests: `xcodebuild test -project TimelapseDelayTracker.xcodeproj -scheme TimelapseDelayTracker -destination 'platform=iOS Simulator,name=iPhone 17'` (any iOS 26 simulator).
+- Tests: `scripts/test.sh` (creates and deletes its own simulator; the MASON suite runs the same).
 - **No XCUITests, ever.** Nothing automated may appear on this Mac's screen, and MASON's
   xcodebuild shim refuses UI test runs. For UI checks, host the view in an offscreen
   `UIWindow` inside the unit-test bundle and render it, as `ContentViewSmokeTests` does.

@@ -1,0 +1,1 @@
+motion control,interval,rig,dolly,slider,camera,exposure,photography,sequence,start time

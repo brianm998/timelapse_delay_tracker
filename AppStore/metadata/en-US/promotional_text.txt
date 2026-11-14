@@ -1,0 +1,1 @@
+Work out how many shots your motion-control rig should take before its move begins. Set a start time and an interval, get the number instantly. Works offline.

@@ -1,0 +1,1 @@
+First release. Enter your move start time and shooting interval and see how many pre-move shots your rig needs.

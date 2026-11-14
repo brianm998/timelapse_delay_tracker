@@ -1,0 +1,8 @@
+No login or account is needed, and no special hardware is required. The app works offline and collects no data.
+
+To see a result:
+1. Open the app. The Setup card shows Move Start Time and Shooting Interval (default 22 seconds).
+2. Set Move Start Time to a time later than now (the default is 21:00 today, so if it is already past 21:00, pick a later time).
+3. The Live Results card shows "Pre-Move Shots Needed" and "Enter N into rig", where N is the count rounded up.
+
+If the start time is in the past, or the interval is empty or zero, a message is shown instead of a result.

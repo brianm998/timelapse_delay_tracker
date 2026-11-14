@@ -33,7 +33,22 @@ final class ShotCalculatorTests: XCTestCase {
 @MainActor
 final class ContentViewSmokeTests: XCTestCase {
     func testMainScreenRendersSomething() throws {
-        let size = CGSize(width: 393, height: 852)
+        try render(name: "ContentView", size: CGSize(width: 393, height: 852))
+    }
+
+    /// 11" and 13" iPad portrait and landscape, and a narrow Split View column.
+    func testMainScreenRendersOnIPadSizes() throws {
+        let sizes: [(String, CGSize)] = [
+            ("iPad11-portrait", CGSize(width: 834, height: 1194)),
+            ("iPad11-landscape", CGSize(width: 1194, height: 834)),
+            ("iPad13-portrait", CGSize(width: 1024, height: 1366)),
+            ("iPad13-landscape", CGSize(width: 1366, height: 1024)),
+            ("SplitView-narrow", CGSize(width: 507, height: 1024)),
+        ]
+        for (name, size) in sizes { try render(name: name, size: size) }
+    }
+
+    private func render(name: String, size: CGSize) throws {
         let window = UIWindow(frame: CGRect(origin: .zero, size: size))
         let host = UIHostingController(rootView: ContentView())
         window.rootViewController = host
@@ -48,7 +63,7 @@ final class ContentViewSmokeTests: XCTestCase {
         }
 
         let attachment = XCTAttachment(image: image)
-        attachment.name = "ContentView"
+        attachment.name = name
         attachment.lifetime = .keepAlways
         add(attachment)
 
@@ -70,5 +85,21 @@ final class ContentViewSmokeTests: XCTestCase {
             }
         }
         return seen.count
+    }
+}
+
+final class PrivacyManifestTests: XCTestCase {
+    func testPrivacyManifestDeclaresUserDefaultsReason() throws {
+        let url = try XCTUnwrap(Bundle.main.url(forResource: "PrivacyInfo", withExtension: "xcprivacy"),
+                                "PrivacyInfo.xcprivacy is missing from the app bundle")
+        let plist = try PropertyListSerialization.propertyList(from: Data(contentsOf: url), format: nil)
+        let dict = try XCTUnwrap(plist as? [String: Any])
+        XCTAssertEqual(dict["NSPrivacyTracking"] as? Bool, false)
+        XCTAssertEqual((dict["NSPrivacyTrackingDomains"] as? [Any])?.count, 0)
+        XCTAssertEqual((dict["NSPrivacyCollectedDataTypes"] as? [Any])?.count, 0)
+        let apis = try XCTUnwrap(dict["NSPrivacyAccessedAPITypes"] as? [[String: Any]])
+        let ud = try XCTUnwrap(apis.first { $0["NSPrivacyAccessedAPIType"] as? String == "NSPrivacyAccessedAPICategoryUserDefaults" },
+                               "UserDefaults category not declared")
+        XCTAssertEqual(ud["NSPrivacyAccessedAPITypeReasons"] as? [String], ["CA92.1"])
     }
 }

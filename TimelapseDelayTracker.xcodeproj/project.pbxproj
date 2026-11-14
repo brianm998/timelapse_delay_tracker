@@ -10,6 +10,7 @@
 		35F67BB9000000000000001 /* TimelapseDelayTrackerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35F67BB9000000000000002 /* TimelapseDelayTrackerApp.swift */; };
 		35F67BB9000000000000003 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35F67BB9000000000000004 /* ContentView.swift */; };
 		35F67BB9000000000000005 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 35F67BB9000000000000006 /* Assets.xcassets */; };
+		35F67BB9000000000000025 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 35F67BB9000000000000026 /* PrivacyInfo.xcprivacy */; };
 		35F67BB9000000000000016 /* ShotCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35F67BB9000000000000017 /* ShotCalculator.swift */; };
 		35F67BB900000000000001A /* TimelapseDelayTrackerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35F67BB9000000000000018 /* TimelapseDelayTrackerTests.swift */; };
 /* End PBXBuildFile section */
@@ -28,6 +29,7 @@
 		35F67BB9000000000000002 /* TimelapseDelayTrackerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelapseDelayTrackerApp.swift; sourceTree = "<group>"; };
 		35F67BB9000000000000004 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		35F67BB9000000000000006 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		35F67BB9000000000000026 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		35F67BB9000000000000007 /* TimelapseDelayTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TimelapseDelayTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		35F67BB9000000000000017 /* ShotCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShotCalculator.swift; sourceTree = "<group>"; };
 		35F67BB9000000000000018 /* TimelapseDelayTrackerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelapseDelayTrackerTests.swift; sourceTree = "<group>"; };
@@ -68,6 +70,7 @@
 				35F67BB9000000000000004 /* ContentView.swift */,
 				35F67BB9000000000000017 /* ShotCalculator.swift */,
 				35F67BB9000000000000006 /* Assets.xcassets */,
+				35F67BB9000000000000026 /* PrivacyInfo.xcprivacy */,
 			);
 			path = TimelapseDelayTracker;
 			sourceTree = "<group>";
@@ -171,6 +174,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				35F67BB9000000000000005 /* Assets.xcassets in Resources */,
+				35F67BB9000000000000025 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -340,6 +344,9 @@
 				DEVELOPMENT_TEAM = G3L75S65V9;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Timelapse Delay";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.photography";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -370,6 +377,9 @@
 				DEVELOPMENT_TEAM = G3L75S65V9;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Timelapse Delay";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.photography";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

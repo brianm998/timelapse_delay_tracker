@@ -75,7 +75,8 @@ final class ContentViewSmokeTests: XCTestCase {
 
 final class AppIconTests: XCTestCase {
     func testBuiltAppDeclaresTheAppIcon() {
-        let name = Bundle.main.object(forInfoDictionaryKey: "CFBundleIconName") as? String
-        XCTAssertEqual(name, "AppIcon")
+        let icons = Bundle.main.object(forInfoDictionaryKey: "CFBundleIcons") as? [String: Any]
+        let primary = icons?["CFBundlePrimaryIcon"] as? [String: Any]
+        XCTAssertEqual(primary?["CFBundleIconName"] as? String, "AppIcon")
     }
 }

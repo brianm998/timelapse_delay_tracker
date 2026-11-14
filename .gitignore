@@ -6,3 +6,5 @@ xcuserdata/
 .DS_Store
 # Local Claude settings
 .claude/settings.local.json
+scripts/release.env
+*.p8

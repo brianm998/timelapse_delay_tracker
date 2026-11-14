@@ -98,6 +98,110 @@ final class ContentViewSmokeTests: XCTestCase {
     }
 }
 
+@MainActor
+final class StoreScreenshotTests: XCTestCase {
+    private struct Shot {
+        let device: String, orientation: String
+        let points: CGSize, scale: CGFloat
+        let pixels: CGSize
+        let isPad: Bool
+    }
+
+    private let shots: [Shot] = [
+        Shot(device: "iphone-6.9", orientation: "portrait", points: CGSize(width: 440, height: 956),
+             scale: 3, pixels: CGSize(width: 1320, height: 2868), isPad: false),
+        Shot(device: "ipad-13", orientation: "portrait", points: CGSize(width: 1032, height: 1376),
+             scale: 2, pixels: CGSize(width: 2064, height: 2752), isPad: true),
+        Shot(device: "ipad-13", orientation: "landscape", points: CGSize(width: 1376, height: 1032),
+             scale: 2, pixels: CGSize(width: 2752, height: 2064), isPad: true),
+    ]
+
+    private func date(_ h: Int, _ m: Int, _ s: Int = 0) -> Date {
+        var c = DateComponents()
+        c.year = 2026; c.month = 11; c.day = 14; c.hour = h; c.minute = m; c.second = s
+        return Calendar.current.date(from: c)!
+    }
+
+    private struct ShotState {
+        let name: String, interval: String, now: Date
+    }
+
+    private var states: [ShotState] {
+        [ShotState(name: "result", interval: "22", now: date(20, 11, 58)),
+         ShotState(name: "invalid-interval", interval: "0", now: date(20, 11, 58)),
+         ShotState(name: "start-passed", interval: "22", now: date(21, 5))]
+    }
+
+    func testSizeTableMatchesAppStoreRequirements() {
+        for shot in shots {
+            XCTAssertEqual(shot.points.width * shot.scale, shot.pixels.width)
+            XCTAssertEqual(shot.points.height * shot.scale, shot.pixels.height)
+        }
+        XCTAssertEqual(shots.map { "\(Int($0.pixels.width))x\(Int($0.pixels.height))" },
+                       ["1320x2868", "2064x2752", "2752x2064"])
+    }
+
+    func testRendersStoreScreenshots() throws {
+        let dir = ProcessInfo.processInfo.environment["SCREENSHOT_DIR"].flatMap { $0.isEmpty ? nil : $0 }
+        let isPad = UIDevice.current.userInterfaceIdiom == .pad
+        if let dir {
+            try FileManager.default.createDirectory(atPath: dir, withIntermediateDirectories: true)
+        }
+        let chosen = dir == nil ? Array(states.prefix(1)) : states
+        for shot in shots where shot.isPad == isPad {
+            for state in chosen {
+                let image = try render(shot, state)
+                let cg = try XCTUnwrap(image.cgImage)
+                XCTAssertEqual(CGFloat(cg.width), shot.pixels.width)
+                XCTAssertEqual(CGFloat(cg.height), shot.pixels.height)
+                XCTAssertGreaterThan(distinctColorCount(in: image), 8, "\(shot.device) \(state.name) is blank")
+                if let dir {
+                    let png = try XCTUnwrap(image.pngData())
+                    let name = "\(shot.device)-\(shot.orientation)-\(state.name).png"
+                    try png.write(to: URL(fileURLWithPath: dir).appendingPathComponent(name))
+                }
+            }
+        }
+    }
+
+    private func render(_ shot: Shot, _ state: ShotState) throws -> UIImage {
+        let window = UIWindow(frame: CGRect(origin: .zero, size: shot.points))
+        window.overrideUserInterfaceStyle = .light
+        let host = UIHostingController(rootView: ContentView(startTime: date(21, 0),
+                                                             intervalText: state.interval,
+                                                             now: state.now))
+        window.rootViewController = host
+        window.isHidden = false
+        host.view.frame = window.bounds
+        host.view.setNeedsLayout()
+        host.view.layoutIfNeeded()
+        RunLoop.main.run(until: Date().addingTimeInterval(0.2))
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = shot.scale
+        format.opaque = true
+        let image = UIGraphicsImageRenderer(size: shot.points, format: format).image { _ in
+            _ = host.view.drawHierarchy(in: host.view.bounds, afterScreenUpdates: true)
+        }
+        window.isHidden = true
+        return image
+    }
+
+    private func distinctColorCount(in image: UIImage) -> Int {
+        guard let cg = image.cgImage,
+              let data = cg.dataProvider?.data,
+              let bytes = CFDataGetBytePtr(data) else { return 0 }
+        let bpp = cg.bitsPerPixel / 8, bpr = cg.bytesPerRow
+        var seen = Set<UInt32>()
+        for y in stride(from: 0, to: cg.height, by: 12) {
+            for x in stride(from: 0, to: cg.width, by: 12) {
+                let o = y * bpr + x * bpp
+                seen.insert(UInt32(bytes[o]) << 16 | UInt32(bytes[o + 1]) << 8 | UInt32(bytes[o + 2]))
+            }
+        }
+        return seen.count
+    }
+}
+
 final class PrivacyManifestTests: XCTestCase {
     func testPrivacyManifestDeclaresUserDefaultsReason() throws {
         let url = try XCTUnwrap(Bundle.main.url(forResource: "PrivacyInfo", withExtension: "xcprivacy"),

@@ -1,7 +1,21 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var startTime: Date = {
+    @State private var startTime: Date
+    @State private var intervalText: String
+    @State private var now: Date
+    private let fixedNow: Date?
+
+    /// With no arguments the screen reads the stored start time and interval and follows the
+    /// live clock. Screenshots pass explicit values; a fixed `now` never advances.
+    init(startTime: Date? = nil, intervalText: String? = nil, now: Date? = nil) {
+        _startTime = State(initialValue: startTime ?? Self.defaultStartTime())
+        _intervalText = State(initialValue: intervalText ?? Self.defaultIntervalText())
+        _now = State(initialValue: now ?? Date())
+        fixedNow = now
+    }
+
+    private static func defaultStartTime() -> Date {
         let stored = UserDefaults.standard.object(forKey: "startTime") as? Date
         if let stored { return stored }
         let cal = Calendar.current
@@ -10,12 +24,12 @@ struct ContentView: View {
         comps.minute = 0
         comps.second = 0
         return cal.date(from: comps) ?? Date()
-    }()
-    @State private var intervalText: String = {
+    }
+
+    private static func defaultIntervalText() -> String {
         let stored = UserDefaults.standard.double(forKey: "shootingInterval")
         return stored > 0 ? String(stored) : "22"
-    }()
-    @State private var now: Date = Date()
+    }
     @FocusState private var intervalFocused: Bool
 
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
@@ -46,7 +60,7 @@ struct ContentView: View {
             }
         }
         .onReceive(timer) { t in
-            now = t
+            if fixedNow == nil { now = t }
         }
         .onTapGesture {
             intervalFocused = false

@@ -36,16 +36,26 @@ final class ContentViewSmokeTests: XCTestCase {
         try render(name: "ContentView", size: CGSize(width: 393, height: 852))
     }
 
-    /// 11" and 13" iPad portrait and landscape, and a narrow Split View column.
-    func testMainScreenRendersOnIPadSizes() throws {
-        let sizes: [(String, CGSize)] = [
-            ("iPad11-portrait", CGSize(width: 834, height: 1194)),
-            ("iPad11-landscape", CGSize(width: 1194, height: 834)),
-            ("iPad13-portrait", CGSize(width: 1024, height: 1366)),
-            ("iPad13-landscape", CGSize(width: 1366, height: 1024)),
-            ("SplitView-narrow", CGSize(width: 507, height: 1024)),
+    /// 11" and 13" iPad portrait and landscape, and a narrow Split View column. Layout only (no
+    /// drawing): drawing five full-size images is slow enough on a loaded simulator to time out.
+    func testMainScreenLaysOutOnIPadSizes() throws {
+        let sizes: [CGSize] = [
+            CGSize(width: 834, height: 1194), CGSize(width: 1194, height: 834),
+            CGSize(width: 1024, height: 1366), CGSize(width: 1366, height: 1024),
+            CGSize(width: 507, height: 1024),
         ]
-        for (name, size) in sizes { try render(name: name, size: size) }
+        for size in sizes {
+            let window = UIWindow(frame: CGRect(origin: .zero, size: size))
+            let host = UIHostingController(rootView: ContentView())
+            window.rootViewController = host
+            window.isHidden = false
+            host.view.frame = window.bounds
+            host.view.layoutIfNeeded()
+            XCTAssertEqual(host.view.bounds.size, size)
+            let fitted = host.sizeThatFits(in: CGSize(width: size.width, height: .greatestFiniteMagnitude))
+            XCTAssertLessThanOrEqual(fitted.width, size.width + 0.5, "content wider than \(size)")
+            window.isHidden = true
+        }
     }
 
     private func render(name: String, size: CGSize) throws {

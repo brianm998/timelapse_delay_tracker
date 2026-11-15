@@ -39,3 +39,18 @@ The owner runs these steps. Agents never handle signing keys or App Store Connec
 - Build number is `BUILD_NUMBER` if set, else the commit count; the checkout must not be shallow (`fetch-depth: 0`).
 - `HEAD` must be contained in `origin/develop` (override with `ALLOW_NON_DEVELOP=1`). The script fails before archiving if the tag already exists on origin.
 - No commit is made. After upload it pushes only the tag `v<marketing>-<build>` and writes `tag`, `marketing` and `build` to `$GITHUB_OUTPUT`.
+
+## TestFlight workflow (GitHub Actions)
+
+`.github/workflows/testflight.yml` builds, signs and uploads to TestFlight by calling `scripts/release.sh --ci`. Nothing automated has run it: the first real run is yours.
+
+One-time setup:
+
+1. In App Store Connect (Users and Access > Integrations > App Store Connect API) create a **Team** key with the **Admin** role. Cloud-managed distribution signing needs Admin; App Manager is not enough. Download the `.p8` once, and note the Key ID and Issuer ID.
+2. In GitHub, create the environment `testflight` (Settings > Environments). Optionally add a required reviewer, so each upload needs approval.
+3. In that environment add three secrets:
+   - `ASC_KEY_ID`: the Key ID.
+   - `ASC_ISSUER_ID`: the Issuer ID.
+   - `ASC_KEY_P8_BASE64`: `base64 -i AuthKey_XXXX.p8 | pbcopy`, then paste.
+
+To run it: Actions tab > TestFlight > Run workflow, branch `develop` (any other branch fails at once). Untick `run_tests` to skip `scripts/test.sh`. The run pushes the tag `v<marketing>-<build>` and writes tag, version and build to the run summary. On failure it uploads logs and dSYMs only, never the `.ipa` or key.

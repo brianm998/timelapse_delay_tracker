@@ -1,0 +1,11 @@
+name: Select Xcode 26
+description: Select the newest installed Xcode 26 and print its version.
+runs:
+  using: composite
+  steps:
+    - name: Select newest Xcode 26
+      shell: bash
+      run: |
+        xcode=$(printf '%s\n' /Applications/Xcode_26*.app | sort -V | tail -n 1)
+        sudo xcode-select -s "$xcode"
+        xcodebuild -version

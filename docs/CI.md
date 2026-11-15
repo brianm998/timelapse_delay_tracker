@@ -17,3 +17,15 @@ A newer push to the same ref cancels the run in progress.
 
 The repo is private, so GitHub bills macOS runner minutes at 10x. That is why the macOS job
 is skipped for docs-only changes and why superseded runs are cancelled. Nothing is cached.
+
+## TestFlight workflow
+
+`.github/workflows/testflight.yml` is manual only (`workflow_dispatch`, `develop` only). It needs `contents: write` to push the release tag, runs in the `testflight` environment on `macos-26` (45 min limit), and queues rather than cancels (`concurrency: testflight`). Steps: full checkout, Xcode via `.github/actions/setup-xcode` (shared with `ci.yml`), optional `scripts/test.sh` (`run_tests`, default on), `scripts/check_metadata.sh`, then `scripts/release.sh --ci`.
+
+Owner setup:
+
+- GitHub: create environment `testflight` (optionally with a required reviewer) holding secrets `ASC_KEY_ID`, `ASC_ISSUER_ID`, `ASC_KEY_P8_BASE64` (`base64 -i AuthKey_XXXX.p8 | pbcopy`).
+- App Store Connect: the API key must be a **Team** key with the **Admin** role (cloud-managed distribution signing).
+- Run: Actions tab > TestFlight > Run workflow, branch `develop`.
+
+Secrets appear only in the `env:` of the release step. On failure only logs, dSYMs and the test result bundle are uploaded.

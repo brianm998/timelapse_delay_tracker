@@ -224,4 +224,29 @@ final class AppIconTests: XCTestCase {
         let primary = icons?["CFBundlePrimaryIcon"] as? [String: Any]
         XCTAssertEqual(primary?["CFBundleIconName"] as? String, "AppIcon")
     }
+
+    func testIconLooksLikeTheNewArt() throws {
+        let image = try XCTUnwrap(UIImage(named: "AppIcon"), "AppIcon not loadable by name in this host")
+        let cg = try XCTUnwrap(image.cgImage)
+        let n = 32
+        var px = [UInt8](repeating: 0, count: n * n * 4)
+        let drawn: Bool = px.withUnsafeMutableBytes { buf in
+            guard let ctx = CGContext(data: buf.baseAddress, width: n, height: n, bitsPerComponent: 8,
+                                      bytesPerRow: n * 4, space: CGColorSpaceCreateDeviceRGB(),
+                                      bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue) else { return false }
+            ctx.interpolationQuality = .high
+            ctx.draw(cg, in: CGRect(x: 0, y: 0, width: n, height: n))
+            return true
+        }
+        XCTAssertTrue(drawn)
+        // Corner 3x3 blocks of the downscaled icon must be dark (navy / near-black), not white.
+        for (cx, cy) in [(0, 0), (n - 3, 0), (0, n - 3), (n - 3, n - 3)] {
+            var total = 0
+            for y in cy..<(cy + 3) { for x in cx..<(cx + 3) {
+                let i = (y * n + x) * 4
+                total += Int(px[i]) + Int(px[i + 1]) + Int(px[i + 2])
+            } }
+            XCTAssertLessThan(Double(total) / 27.0 / 255.0, 0.5)
+        }
+    }
 }

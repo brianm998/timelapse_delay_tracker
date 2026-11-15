@@ -64,11 +64,7 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
-      - name: Select newest Xcode 26
-        run: |
-          xcode=$(printf '%s\n' /Applications/Xcode_26*.app | sort -V | tail -n 1)
-          sudo xcode-select -s "$xcode"
-          xcodebuild -version
+      - uses: ./.github/actions/setup-xcode
       - name: Test
         run: scripts/test.sh
       - name: Upload result bundle

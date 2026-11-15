@@ -1,0 +1,72 @@
+name: App Store
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_number:
+        description: Processed TestFlight build number (digits only)
+        type: string
+        required: true
+      submit:
+        description: Submit for App Review (off = only upload metadata and screenshots)
+        type: boolean
+        default: false
+
+concurrency:
+  group: app-store
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deliver:
+    name: Listing and review
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: app-store
+    steps:
+      - name: Require develop and a numeric build
+        env:
+          REF: ${{ github.ref }}
+          BUILD_NUMBER: ${{ inputs.build_number }}
+        run: |
+          if [ "$REF" != "refs/heads/develop" ]; then
+            echo "App Store runs from develop only (got $REF)." >&2
+            exit 1
+          fi
+          case "$BUILD_NUMBER" in
+            ''|*[!0-9]*) echo "build_number must be digits only." >&2; exit 1 ;;
+          esac
+      - uses: actions/checkout@v4
+      - name: Check store URLs
+        run: scripts/check_store_urls.sh
+      - name: Check metadata
+        run: scripts/check_metadata.sh
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: .ruby-version
+          bundler-cache: true
+      - name: Stage screenshots
+        run: |
+          mkdir -p "$RUNNER_TEMP/store/screenshots/en-US"
+          cp AppStore/screenshots/*/*.png "$RUNNER_TEMP/store/screenshots/en-US/"
+          echo "SCREENSHOTS_DIR=$RUNNER_TEMP/store/screenshots" >> "$GITHUB_ENV"
+      - name: Upload listing and submit
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8_BASE64: ${{ secrets.ASC_KEY_P8_BASE64 }}
+          BUILD_NUMBER: ${{ inputs.build_number }}
+          SUBMIT: ${{ inputs.submit }}
+        run: bundle exec fastlane submit_review build_number:"$BUILD_NUMBER" submit:"$SUBMIT"
+      - name: Summary
+        env:
+          BUILD_NUMBER: ${{ inputs.build_number }}
+          SUBMIT: ${{ inputs.submit }}
+        run: |
+          {
+            echo "## App Store"
+            echo "- Build: $BUILD_NUMBER"
+            if [ "$SUBMIT" = "true" ]; then echo "- Metadata and screenshots uploaded; submitted for review"; else echo "- Metadata and screenshots uploaded; not submitted"; fi
+          } >> "$GITHUB_STEP_SUMMARY"

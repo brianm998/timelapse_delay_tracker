@@ -29,3 +29,7 @@ Owner setup:
 - Run: Actions tab > TestFlight > Run workflow, branch `develop`.
 
 Secrets appear only in the `env:` of the release step. On failure only logs, dSYMs and the test result bundle are uploaded.
+
+## App Store workflow
+
+`.github/workflows/app-store.yml` is manual only (`develop` only, environment `app-store`, `ubuntu-latest`, queued via `concurrency: app-store`). It checks the store URLs and metadata, stages screenshots into a temp dir, then runs `bundle exec fastlane submit_review`; the three ASC secrets are only in that step's `env:`. `scripts/test_check_store_urls.sh` runs in the `ci.yml` metadata job. See RELEASING.md.

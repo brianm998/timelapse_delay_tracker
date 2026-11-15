@@ -54,3 +54,14 @@ One-time setup:
    - `ASC_KEY_P8_BASE64`: `base64 -i AuthKey_XXXX.p8 | pbcopy`, then paste.
 
 To run it: Actions tab > TestFlight > Run workflow, branch `develop` (any other branch fails at once). Untick `run_tests` to skip `scripts/test.sh`. The run pushes the tag `v<marketing>-<build>` and writes tag, version and build to the run summary. On failure it uploads logs and dSYMs only, never the `.ipa` or key.
+
+## Submitting for review from GitHub
+
+`.github/workflows/app-store.yml` uploads the listing (`AppStore/metadata` and screenshots) with fastlane `deliver` and can submit an already processed TestFlight build for App Review. Nothing automated has run it: the first real run is yours.
+
+Setup:
+
+1. Replace the `example.com` URLs in `AppStore/metadata/en-US/privacy_url.txt` and `support_url.txt`. The workflow fails before any API call while either contains `example.com`.
+2. In GitHub create the environment `app-store` and add a required reviewer. Add the same secrets as for TestFlight: `ASC_KEY_ID`, `ASC_ISSUER_ID`, `ASC_KEY_P8_BASE64`. The App Manager role is enough for `deliver`.
+
+To run: Actions tab > App Store > Run workflow, branch `develop`, enter the `build_number` of a processed build. `submit` is off by default and then only metadata and screenshots are uploaded. Tick it to submit for review; the release is manual (`automatic_release` is off).

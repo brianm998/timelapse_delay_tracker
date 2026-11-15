@@ -29,3 +29,13 @@ The owner runs these steps. Agents never handle signing keys or App Store Connec
 5. Wait for App Store Connect to finish processing the build.
 6. In App Store Connect, select the build and submit for review.
 7. If you did not use `--push`: `git push origin develop v<marketing>-<build>`.
+
+## From GitHub Actions
+
+`scripts/release.sh --ci` runs on a fresh runner (no Xcode account, detached HEAD). The TestFlight workflow (the next ticket) calls it; do not repeat its logic there.
+
+- Secrets: `ASC_KEY_ID`, `ASC_ISSUER_ID` and `ASC_KEY_P8_BASE64` (the base64 of the `.p8`; `ASC_KEY_PATH` also works). The key is decoded to a mode-600 temp file that is deleted on exit.
+- Archive and export both get `-allowProvisioningUpdates` plus the API key flags, so automatic signing creates cloud-managed certificates and profiles.
+- Build number is `BUILD_NUMBER` if set, else the commit count; the checkout must not be shallow (`fetch-depth: 0`).
+- `HEAD` must be contained in `origin/develop` (override with `ALLOW_NON_DEVELOP=1`). The script fails before archiving if the tag already exists on origin.
+- No commit is made. After upload it pushes only the tag `v<marketing>-<build>` and writes `tag`, `marketing` and `build` to `$GITHUB_OUTPUT`.

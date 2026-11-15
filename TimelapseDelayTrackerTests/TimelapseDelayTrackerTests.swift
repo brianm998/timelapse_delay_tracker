@@ -226,7 +226,10 @@ final class AppIconTests: XCTestCase {
     }
 
     func testIconLooksLikeTheNewArt() throws {
-        let image = try XCTUnwrap(UIImage(named: "AppIcon"), "AppIcon not loadable by name in this host")
+        // The app-icon set is not loadable by name in the test host, so read the catalog's PNG from the source tree.
+        let url = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
+            .appendingPathComponent("TimelapseDelayTracker/Assets.xcassets/AppIcon.appiconset/AppIcon.png")
+        let image = try XCTUnwrap(UIImage(named: "AppIcon") ?? UIImage(contentsOfFile: url.path), "AppIcon.png not found")
         let cg = try XCTUnwrap(image.cgImage)
         let n = 32
         var px = [UInt8](repeating: 0, count: n * n * 4)

@@ -22,6 +22,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: scripts/check_metadata.sh
+      - run: scripts/test_check_store_urls.sh
 
   # macOS minutes cost 10x on private repos, so decide cheaply on Linux whether the
   # change touches anything but docs, markdown and App Store text files.
